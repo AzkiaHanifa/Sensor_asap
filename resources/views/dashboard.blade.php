@@ -7,6 +7,21 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        let previousSmokeValue = 0; // Menyimpan nilai smoke sebelumnya
+        let alertSound = new Audio('/audio/alert.mp3'); // Ganti dengan path yang sesuai
+        alertSound.loop = true; // Membuat suara berulang (looping)
+        let modal; // Untuk menyimpan referensi modal
+
+        // Fungsi untuk menampilkan modal
+        function showAlertModal() {
+            // Menampilkan modal peringatan
+            const myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
+                keyboard: false, // Menghindari menutup modal dengan tombol ESC
+                backdrop: 'static' // Modal tetap terbuka sampai ditutup dengan klik tombol
+            });
+            myModal.show();
+        }
+
         async function fetchSensorData() {
             try {
                 const response = await fetch('/api/sensor-data');
@@ -15,10 +30,10 @@
                 }
                 const data = await response.json();
 
-                // Take only the most recent record
+                // Ambil data terbaru
                 const mostRecent = data[0];
 
-                // Render data to table
+                // Render data ke tabel
                 const tableBody = document.getElementById('sensor-table-body');
                 tableBody.innerHTML = '';
 
@@ -29,13 +44,30 @@
                         <td>${mostRecent.smoke}</td>
                     </tr>`;
                     tableBody.innerHTML = row;
+
+                    // Cek apakah nilai smoke naik dan mainkan suara
+                    if (mostRecent.smoke > previousSmokeValue) {
+                        alertSound.play(); // Mainkan suara
+
+                        // Tampilkan modal jika smoke naik
+                        showAlertModal();
+                    }
+
+                    // Simpan nilai smoke terakhir
+                    previousSmokeValue = mostRecent.smoke;
+
+                    // Matikan suara jika nilai smoke turun ke 0
+                    if (mostRecent.smoke === 0) {
+                        alertSound.pause(); // Hentikan suara
+                        alertSound.currentTime = 0; // Reset suara
+                    }
                 }
             } catch (error) {
                 document.getElementById('error-message').innerText = error.message;
             }
         }
 
-        setInterval(fetchSensorData, 1500); // Refresh every 1.5 seconds
+        setInterval(fetchSensorData, 1500); // Refresh setiap 1.5 detik
         window.onload = fetchSensorData;
     </script>
 </head>
@@ -71,6 +103,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Peringatan -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertModalLabel">Peringatan Kebakaran!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Potensial kebakaran, silakan cek rumah Anda kembali.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
-    
