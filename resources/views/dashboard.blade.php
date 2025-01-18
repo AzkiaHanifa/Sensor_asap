@@ -9,12 +9,10 @@
     <script>
         let previousSmokeValue = 0; // Menyimpan nilai smoke sebelumnya
         let alertSound = new Audio('/audio/alert.mp3'); // Ganti dengan path yang sesuai
-        alertSound.loop = true; // Membuat suara berulang (looping)
         let modal; // Untuk menyimpan referensi modal
 
         // Fungsi untuk menampilkan modal
         function showAlertModal() {
-            // Menampilkan modal peringatan
             const myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
                 keyboard: false, // Menghindari menutup modal dengan tombol ESC
                 backdrop: 'static' // Modal tetap terbuka sampai ditutup dengan klik tombol
@@ -47,7 +45,10 @@
 
                     // Cek apakah nilai smoke naik dan mainkan suara
                     if (mostRecent.smoke > previousSmokeValue) {
-                        alertSound.play(); // Mainkan suara
+                        if (alertSound.paused || alertSound.ended) {
+                            alertSound.loop = true; // Pastikan loop aktif
+                            alertSound.play(); // Mainkan suara
+                        }
 
                         // Tampilkan modal jika smoke naik
                         showAlertModal();
@@ -58,7 +59,7 @@
 
                     // Matikan suara jika nilai smoke turun ke 0
                     if (mostRecent.smoke === 0) {
-                        alertSound.pause(); // Hentikan suara
+                        alertSound.pause();
                         alertSound.currentTime = 0; // Reset suara
                     }
                 }
