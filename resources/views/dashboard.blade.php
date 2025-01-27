@@ -53,7 +53,8 @@
         let alertSound = new Audio('/audio/alert.mp3'); // Replace with the correct path
 
         // Function to display the alert modal
-        function showAlertModal() {
+        function showAlertModal(message) {
+            document.getElementById('alertModalMessage').innerText = message;
             const myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
                 keyboard: false,
                 backdrop: 'static'
@@ -87,7 +88,7 @@
                 tableBody.innerHTML = '';
 
                 if (mostRecent) {
-                    const temperatureColor = mostRecent.temperature > 30 ? 'text-danger' : '';
+                    const temperatureColor = mostRecent.temperature > 60 ? 'text-danger' : '';
                     const row = `<tr>
                         <td class="${temperatureColor}"><i class="fas fa-thermometer-half"></i> ${mostRecent.temperature}</td>
                         <td><i class="fas fa-tint text-primary"></i> ${mostRecent.humidity}</td>
@@ -95,16 +96,19 @@
                     </tr>`;
                     tableBody.innerHTML = row;
 
-                    // Check if smoke value has increased above or equal to 500
-                    if (mostRecent.smoke >= 500) {
+                    // Check if temperature or smoke values trigger an alert
+                    if (mostRecent.temperature > 60 || mostRecent.smoke >= 500) {
                         if (alertSound.ended || alertSound.paused) {
                             alertSound.loop = true;
                             alertSound.play().then(() => {
-                                showAlertModal(); // Show modal only after sound starts playing
+                                const alertMessage = mostRecent.temperature > 60
+                                    ? 'High temperature detected!'
+                                    : 'High smoke levels detected!';
+                                showAlertModal(alertMessage); // Show modal only after sound starts playing
                             });
                         }
                     } else {
-                        // Stop sound if smoke value drops below 500
+                        // Stop sound if conditions return to normal
                         stopAlert();
                     }
                 }
@@ -160,11 +164,11 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="alertModalLabel">Fire Alert!</h5>
+                    <h5 class="modal-title" id="alertModalLabel">Alert!</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    Potential fire detected, please check your home immediately.
+                <div class="modal-body" id="alertModalMessage">
+                    <!-- Dynamic message here -->
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>

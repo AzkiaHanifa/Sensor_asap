@@ -9,7 +9,7 @@ CTBot myBot;
 // Konfigurasi WiFi
 String ssid = "Dragon of Dojima";
 String pass = "kaslana3212";
-String token = "7609310520:AAHm_SK7qiua_BHoGrbKQYEQcf9p2Oz0L-M";  // Token Telegram
+String token = "token telegram nya";  // Token Telegram
 
 // Konfigurasi Pin
 #define DHTPIN D7
