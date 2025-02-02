@@ -6,53 +6,11 @@
     <title>Dashboard Sensor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-    body {
-        background: url('/images/background.jpg') no-repeat center center fixed;
-        background-size: cover;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    .card {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .card-header {
-        background: rgb(0, 0, 0);
-        color: #ffffff;
-    }
-    .card-footer {
-        background: rgb(0, 0, 0);
-        color: #ffffff;
-    }
-    .table-dark {
-        background-color: #000000; /* Black background */
-        color: #ffd700; /* Golden yellow text */
-        border: 1px solid #ffd700; /* Border to match text color */
-    }
-    .table-dark th, .table-dark td {
-        border-color: #ffd700; /* Border for each cell */
-    }
-    .table-dark tbody tr:hover {
-        background-color: #333333; /* Darker background on hover */
-    }
-    .modal-header {
-        background-color: #ef4444;
-        color: #ffffff;
-    }
-    .modal-footer {
-        background-color: #f87171;
-    }
-    </style>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        let alertSound = new Audio('/audio/alert.mp3'); // Replace with the correct path
+        let alertSound = new Audio('/audio/alert.mp3');
 
-        // Function to display the alert modal
         function showAlertModal(message) {
             document.getElementById('alertModalMessage').innerText = message;
             const myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
@@ -62,7 +20,6 @@
             myModal.show();
         }
 
-        // Function to stop the alert sound
         function stopAlert() {
             alertSound.pause();
             alertSound.currentTime = 0;
@@ -74,16 +31,12 @@
 
         async function fetchSensorData() {
             try {
-                const response = await fetch('/api/sensor-data');
+                const response = await fetch('http://192.168.112.18/sensor-data'); // Ganti dengan IP ESP8266 Anda
                 if (!response.ok) {
                     throw new Error('Failed to fetch sensor data');
                 }
-                const data = await response.json();
+                const mostRecent = await response.json();
 
-                // Get the most recent data
-                const mostRecent = data[0];
-
-                // Render data into the table
                 const tableBody = document.getElementById('sensor-table-body');
                 tableBody.innerHTML = '';
 
@@ -96,19 +49,15 @@
                     </tr>`;
                     tableBody.innerHTML = row;
 
-                    // Check if temperature or smoke values trigger an alert
                     if (mostRecent.temperature > 60 || mostRecent.smoke >= 500) {
                         if (alertSound.ended || alertSound.paused) {
                             alertSound.loop = true;
                             alertSound.play().then(() => {
-                                const alertMessage = mostRecent.temperature > 60
-                                    ? 'High temperature detected!'
-                                    : 'High smoke levels detected!';
-                                showAlertModal(alertMessage); // Show modal only after sound starts playing
+                                const alertMessage = mostRecent.temperature > 60 ?  'High temperature detected!' : 'High smoke levels detected!';
+                                showAlertModal(alertMessage);
                             });
                         }
                     } else {
-                        // Stop sound if conditions return to normal
                         stopAlert();
                     }
                 }
@@ -117,7 +66,7 @@
             }
         }
 
-        setInterval(fetchSensorData, 1500); // Refresh every 1.5 seconds
+        setInterval(fetchSensorData, 1500);
         window.onload = fetchSensorData;
     </script>
 </head>
@@ -167,9 +116,7 @@
                     <h5 class="modal-title" id="alertModalLabel">Alert!</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="alertModalMessage">
-                    <!-- Dynamic message here -->
-                </div>
+                <div class="modal-body" id="alertModalMessage"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
