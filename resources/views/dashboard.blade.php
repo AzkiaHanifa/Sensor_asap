@@ -6,53 +6,53 @@
     <title>Dashboard Sensor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <style>
-    body {
-        background: url('/images/background.jpg') no-repeat center center fixed;
-        background-size: cover;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    .card {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .card-header {
-        background: rgb(0, 0, 0);
-        color: #ffffff;
-    }
-    .card-footer {
-        background: rgb(0, 0, 0);
-        color: #ffffff;
-    }
-    .table-dark {
-        background-color: #000000; /* Black background */
-        color: #ffd700; /* Golden yellow text */
-        border: 1px solid #ffd700; /* Border to match text color */
-    }
-    .table-dark th, .table-dark td {
-        border-color: #ffd700; /* Border for each cell */
-    }
-    .table-dark tbody tr:hover {
-        background-color: #333333; /* Darker background on hover */
-    }
-    .modal-header {
-        background-color: #ef4444;
-        color: #ffffff;
-    }
-    .modal-footer {
-        background-color: #f87171;
-    }
+        body {
+            background-image: url('images/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0); /* Transparent black */
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #004085; /* Dark blue for readability */
+            border-radius: 10px;
+            color: white;
+        }
+
+        .card-header, .card-footer {
+            background-color: #0069d9; /* Lighter blue for header/footer */
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let alertSound = new Audio('/audio/alert.mp3'); // Replace with the correct path
+        let alertSound = new Audio('/audio/alert.mp3');
 
-        // Function to display the alert modal
         function showAlertModal(message) {
             document.getElementById('alertModalMessage').innerText = message;
             const myModal = new bootstrap.Modal(document.getElementById('alertModal'), {
@@ -62,7 +62,6 @@
             myModal.show();
         }
 
-        // Function to stop the alert sound
         function stopAlert() {
             alertSound.pause();
             alertSound.currentTime = 0;
@@ -74,16 +73,12 @@
 
         async function fetchSensorData() {
             try {
-                const response = await fetch('/api/sensor-data');
+                const response = await fetch('http://ip-local-anda/sensor-data'); // Update with correct IP
                 if (!response.ok) {
                     throw new Error('Failed to fetch sensor data');
                 }
-                const data = await response.json();
+                const mostRecent = await response.json();
 
-                // Get the most recent data
-                const mostRecent = data[0];
-
-                // Render data into the table
                 const tableBody = document.getElementById('sensor-table-body');
                 tableBody.innerHTML = '';
 
@@ -96,33 +91,33 @@
                     </tr>`;
                     tableBody.innerHTML = row;
 
-                    // Check if temperature or smoke values trigger an alert
                     if (mostRecent.temperature > 60 || mostRecent.smoke >= 500) {
                         if (alertSound.ended || alertSound.paused) {
                             alertSound.loop = true;
                             alertSound.play().then(() => {
-                                const alertMessage = mostRecent.temperature > 60
-                                    ? 'High temperature detected!'
-                                    : 'High smoke levels detected!';
-                                showAlertModal(alertMessage); // Show modal only after sound starts playing
+                                const alertMessage = mostRecent.temperature > 60 ? 'High temperature detected!' : 'High smoke levels detected!';
+                                showAlertModal(alertMessage);
                             });
                         }
                     } else {
-                        // Stop sound if conditions return to normal
                         stopAlert();
                     }
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">No data available</td></tr>';
                 }
             } catch (error) {
                 document.getElementById('error-message').innerText = error.message;
+                const tableBody = document.getElementById('sensor-table-body');
+                tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error fetching data</td></tr>';
             }
         }
 
-        setInterval(fetchSensorData, 1500); // Refresh every 1.5 seconds
+        setInterval(fetchSensorData, 1500);
         window.onload = fetchSensorData;
     </script>
 </head>
 <body>
-    <div class="container">
+    <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card shadow">
@@ -132,7 +127,7 @@
                     <div class="card-body">
                         <p id="error-message" class="text-danger text-center"></p>
                         <div class="table-responsive">
-                            <table class="table table-dark">
+                            <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th>Temperature (&#8451;)</th>
@@ -147,9 +142,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-center mt-4">
-                            <button type="button" class="btn btn-primary" onclick="stopAlert()">Stop Alarm</button>
-                        </div>
+                       
                     </div>
                     <div class="card-footer text-center">
                         <small>Updated every 1.5 seconds</small>
@@ -167,9 +160,7 @@
                     <h5 class="modal-title" id="alertModalLabel">Alert!</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="alertModalMessage">
-                    <!-- Dynamic message here -->
-                </div>
+                <div class="modal-body" id="alertModalMessage"></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                 </div>
