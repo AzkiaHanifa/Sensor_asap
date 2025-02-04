@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<<<<<<< HEAD
 
     <style>
         body {
@@ -50,6 +51,9 @@
         }
     </style>
 
+=======
+    
+>>>>>>> b8c78d9992e35ba2f2690ab1f87db3693aaebb5f
     <script>
         let alertSound = new Audio('/audio/alert.mp3');
 
@@ -95,7 +99,11 @@
                         if (alertSound.ended || alertSound.paused) {
                             alertSound.loop = true;
                             alertSound.play().then(() => {
+<<<<<<< HEAD
                                 const alertMessage = mostRecent.temperature > 60 ? 'High temperature detected!' : 'High smoke levels detected!';
+=======
+                                const alertMessage = mostRecent.temperature > 60 ?  'High temperature detected!' : 'High smoke levels detected!';
+>>>>>>> b8c78d9992e35ba2f2690ab1f87db3693aaebb5f
                                 showAlertModal(alertMessage);
                             });
                         }
