@@ -73,7 +73,7 @@
 
         async function fetchSensorData() {
             try {
-                const response = await fetch('http://192.168.18.11/sensor-data'); // Update with correct IP
+                const response = await fetch('http://ip-local-anda/sensor-data'); // Update with correct IP
                 if (!response.ok) {
                     throw new Error('Failed to fetch sensor data');
                 }

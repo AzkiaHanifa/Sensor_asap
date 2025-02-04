@@ -10,8 +10,8 @@
 DHT dht(DHTPIN, DHTTYPE);
 ESP8266WebServer server(80);
 
-const char* ssid = "Dragon of Dojima";   // Ganti dengan WiFi Anda
-const char* pass = "kaslana3212";  // Ganti dengan password WiFi Anda
+const char* ssid = "";   // Ganti dengan WiFi Anda
+const char* pass = "";  // Ganti dengan password WiFi Anda
 
 void setup() {
   Serial.begin(115200);
